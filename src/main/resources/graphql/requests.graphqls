@@ -1,0 +1,56 @@
+type Query {
+	getMeasure(id: Int): Measure
+	getAllMeasures: [Measure]
+	getBeginningMeasures: [BeginningMeasure]
+	getActiveSession: [ActiveSession]
+	getMeasures(matchingObject: IMeasure, limits: IPagination, dateFilter: ITimeRange): MeasurePage
+	getTotalMeasures(filter: MeasureFilter): Int
+
+	getAllHouses: [AcpHouse]
+
+	getDevices(matchingObject:IDevice, limit:IPagination): DevicePage
+	getTotalDevices(matchingObject:IDevice): Int
+
+	getAllRoles: [RoleGroup]
+	getAllUsers: [User]
+	getUserByUsername(username: String): User
+
+	validateLogin(login: String): Boolean
+
+	getNetworkStatistic(timeRange: ITimeRange): [NetworkUtil]
+	getCpuStatistic(timeRange: ITimeRange): [CpuUtil]
+	getRamStatistic(timeRange: ITimeRange): [RamUtil]
+	getMeasuringCountsInDays(timeRange: ITimeRange): [GroupedCTypeDayIntegerPoint]
+	getMeasuringCountsInAddresses(timeRange: ITimeRange): [GroupedCTypeStringIntegerPoint]
+	getMeasuringCountsFromPeriod(timeRange: ITimeRange): Int
+
+	getComplaints(matchingObject: IComplaint, limits: IPagination, dateFilter: ITimeRange, isProcessed: Boolean): ComplaintPage
+	getTotalComplaints(filter: ComplaintsFilter): Int
+
+	getTotalFeedbacks: Long
+	getAvgAllFeedbacks: Float
+}
+
+type Mutation {
+	createUser(user: IUser): User
+	editUser(user: IUser): User
+	deleteUser(userId: Int): User
+	doProcessedComplaint(id: Int, username: String): Boolean
+
+	setDeviceMode(deviceId: String, mode: Boolean): Boolean
+}
+
+type Subscription {
+	updateActiveSession: ActiveSessionsUpdateProvider
+
+	updateUsers: UserUpdateProvider
+
+	getPerformance: PerformanceInfo
+
+	updateComplaints: ComplaintUpdateProvider
+
+	updateMeasures: MeasureUpdateProvider
+	updateBeginningMeasures: BeginningMeasureUpdateProvider
+
+	updateDevices: DeviceUpdateProvider
+}
