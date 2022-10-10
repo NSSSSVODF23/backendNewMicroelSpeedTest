@@ -1,0 +1,101 @@
+input IAcpSession {
+    sessionId: Int
+    mac: String
+    login: String
+    ip: String
+    vlan: Int
+    house: IAcpHouse
+    measures: [IMeasure]
+}
+
+input IDevice {
+    deviceId: String
+    ip: String
+    hostname: String
+    system: String
+    platform: String
+    userAgent: String
+    isMobile: Boolean
+    measures: [IMeasure]
+    isPro: Boolean
+    lastSession: IAcpSession
+}
+
+input IPagination {
+    offset: Int
+    limit: Int
+}
+
+input IAcpHouse {
+    houseId: Int
+    vlan: Int
+    address: String
+    sessions: [IAcpSession]
+}
+
+input ISpeedChartPoint {
+    stamp: Int
+    speed: Float
+}
+
+input IMeasure {
+    measureId: Int
+    device: IDevice
+    session: IAcpSession
+    created: String
+    connectionType: MeasureConnectionTypes
+    ping: Float
+    pingJitter: Float
+    downloadSpeed: Float
+    downloadSpeedUser: Float
+    downloadStability: Float
+    downloadLoss: Float
+    downloadSpeedChart: [ISpeedChartPoint]
+    downloadSpeedChartUser: [ISpeedChartPoint]
+    uploadSpeed: Float
+    uploadSpeedUser: Float
+    uploadStability: Float
+    uploadLoss: Float
+    uploadSpeedChart: [ISpeedChartPoint]
+    uploadSpeedChartUser: [ISpeedChartPoint]
+    isUsed: Boolean
+    isFailed: Boolean
+    isStarted: Boolean
+}
+
+input IRoleGroup {
+    roleId: Int
+    groupName: String
+    description: String
+}
+
+input IUser {
+    userId: Int
+    username: String
+    password: String
+    role: IRoleGroup
+    name: String
+    created: String
+    lastLogin: String
+    avatar: [Int]
+}
+
+input IProcessedComplaint {
+    id: Int
+    username: String
+}
+
+input ITimeRange {
+    start: String
+    end: String
+}
+
+input IComplaint {
+    complaintId: Int
+    phone: String
+    description: String
+    created: String
+    session: IAcpSession
+    processed: IUser
+    processedTime: String
+}

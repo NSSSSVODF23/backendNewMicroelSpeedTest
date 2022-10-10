@@ -1,0 +1,276 @@
+#scalar JSON
+scalar Long
+
+interface Page{
+	totalElements: Long
+}
+
+type DevicePage implements Page{
+	content: [Device]
+	totalElements: Long
+}
+
+type MeasurePage implements Page{
+	content: [Measure]
+	totalElements: Long
+}
+
+type ComplaintPage implements Page{
+	content: [Complaint]
+	totalElements: Long
+}
+
+type Device {
+	deviceId: String
+	ip: String
+	hostname: String
+	system: String
+	platform: String
+	userAgent: String
+	isMobile: Boolean
+	measures: [Measure]
+	isPro: Boolean
+	lastSession: AcpSession
+}
+
+type AcpHouse {
+	houseId: Int
+	vlan: Int
+	address: String
+	sessions: [AcpSession]
+}
+
+type AcpSession {
+	sessionId: Int
+	mac: String
+	login: String
+	ip: String
+	vlan: Int
+	house: AcpHouse
+	measures: [Measure]
+}
+
+type SpeedChartPoint {
+	stamp: Int
+	speed: Float
+}
+
+enum MeasureConnectionTypes {
+	ETHERNET
+	WIFI
+}
+
+type Measure {
+	measureId: Int
+	device: Device
+	session: AcpSession
+	created: String
+	connectionType: MeasureConnectionTypes
+	ping: Float
+	pingJitter: Float
+	downloadSpeed: Float
+	downloadSpeedUser: Float
+	downloadStability: Float
+	downloadLoss: Float
+	downloadSpeedChart: [SpeedChartPoint]
+	downloadSpeedChartUser: [SpeedChartPoint]
+	uploadSpeed: Float
+	uploadSpeedUser: Float
+	uploadStability: Float
+	uploadLoss: Float
+	uploadSpeedChart: [SpeedChartPoint]
+	uploadSpeedChartUser: [SpeedChartPoint]
+	isUsed: Boolean
+	isFailed: Boolean
+	isStarted: Boolean
+}
+
+type BeginningMeasure{
+	measureId: Int
+	device: Device
+	session: AcpSession
+	created: String
+	connectionType: MeasureConnectionTypes
+	ping: Float
+	pingJitter: Float
+	downloadSpeed: Float
+	downloadStability: Float
+	downloadLoss: Float
+	downloadSpeedChart: [SpeedChartPoint]
+	uploadSpeed: Float
+	uploadStability: Float
+	uploadLoss: Float
+	uploadSpeedChart: [SpeedChartPoint]
+	isUsed: Boolean
+	isFailed: Boolean
+	isStarted: Boolean
+	beginningId: String
+}
+
+input MeasureFilter {
+	login: String
+	address: Int
+	ip: String
+	mac: String
+	start: String
+	end: String
+	first: Int
+	rows: Int
+}
+
+input DeviceFilter {
+	deviceId: String
+	login: String
+	address: String
+	ip: String
+	hostname: String
+	first: String
+	rows: String
+}
+
+input ComplaintsFilter {
+	login: String
+	phone: String
+	processed: Boolean
+	address: Int
+	ip: String
+	mac: String
+	start: String
+	end: String
+	first: Int
+	rows: Int
+}
+
+type RoleGroup {
+	roleId: Int
+	groupName: String
+	description: String
+}
+
+type User {
+	userId: Int
+	username: String
+	password: String
+	role: RoleGroup
+	name: String
+	created: String
+	lastLogin: String
+	avatar: [Int]
+}
+
+enum ListMutationTypes {
+	ADD
+	UPDATE
+	DELETE
+}
+
+type UserUpdateProvider {
+	updateType: ListMutationTypes
+	object: User
+}
+
+type ActiveSessionsUpdateProvider {
+	updateType: ListMutationTypes
+	object: ActiveSession
+}
+
+type ComplaintUpdateProvider {
+	updateType: ListMutationTypes
+	object: Complaint
+}
+
+type MeasureUpdateProvider {
+	updateType: ListMutationTypes
+	object: Measure
+}
+
+type BeginningMeasureUpdateProvider {
+	updateType: ListMutationTypes
+	object: BeginningMeasure
+}
+
+type DeviceUpdateProvider {
+	updateType: ListMutationTypes
+	object: Device
+}
+
+type TimeDoublePoint {
+	x: String
+	y: Float
+}
+
+type TimeLongPoint {
+	x: String
+	y: Int
+}
+
+type DayIntegerPoint{
+	x: String
+	y: Int
+}
+
+type GroupedCTypeDayIntegerPoint{
+	x: String
+	y: Int
+	g: MeasureConnectionTypes
+}
+
+type GroupedStringDayIntegerPoint{
+	x: String
+	y: Int
+	g: String
+}
+
+type GroupedCTypeStringIntegerPoint{
+	x: String
+	y: Int
+	g: MeasureConnectionTypes
+}
+
+type PerformanceInfo {
+	receivedChartData: [TimeDoublePoint]
+	transceivedChartData: [TimeDoublePoint]
+	cpuChartData: [TimeDoublePoint]
+	memoryChartData: [TimeLongPoint]
+	totalMemoryChartData: [TimeLongPoint]
+}
+
+type NetworkUtil {
+	networkUtilId: Int
+	stamp: String
+	rx: Float
+	tx: Float
+}
+
+type CpuUtil {
+	cpuUtilId: Int
+	stamp: String
+	load: Float
+}
+
+type RamUtil {
+	ramUtilId: Int
+	stamp: String
+	utilized: Int
+	total: Int
+}
+
+type ActiveSession {
+	id: String
+	deviceId: String
+	isMobile: Boolean
+	login: String
+	address: String
+	isStarted: Boolean
+	hasInfo: Boolean
+}
+
+type Complaint {
+	complaintId: Int
+	phone: String
+	description: String
+	created: String
+	session: AcpSession
+	processed: User
+	processedTime: String
+}
