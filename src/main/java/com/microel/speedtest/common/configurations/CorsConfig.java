@@ -16,13 +16,11 @@ public class CorsConfig {
 
 		CorsConfiguration config = new CorsConfiguration();
 		config.setAllowCredentials(true);
-		config.addAllowedOrigin("http://192.168.0.103:4200");
-		config.addAllowedOrigin("http://192.168.0.115:4200");
-		config.addAllowedOrigin("http://192.168.0.101:4200");
-		config.addAllowedOrigin("http://192.168.0.102:4200");
 		config.addAllowedOriginPattern("http://192.168.0.*:*");
 		config.addAllowedOrigin("http://localhost:4200");
 		config.addAllowedOrigin("http://10.1.3.150:4200");
+		config.addAllowedOrigin("http://speedtest.vdonsk.ru");
+		config.addAllowedOrigin("http://10.50.5.15");
 		config.addAllowedHeader("*");
 		config.addAllowedMethod("*");
 
