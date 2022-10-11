@@ -21,7 +21,6 @@ public class UploadTestController {
 
     public UploadTestController(UploadResolverHandler uploadResolverHandler) {
         this.uploadResolverHandler = uploadResolverHandler;
-        log.info("UploadTestController created {}", uploadResolverHandler);
         uploadResolverHandler.addConnectHandler((dId) -> {
             log.info("Connected to device: " + dId);
             runTest(dId);

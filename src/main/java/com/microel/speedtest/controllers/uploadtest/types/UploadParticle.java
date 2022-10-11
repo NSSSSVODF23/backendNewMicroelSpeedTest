@@ -1,8 +1,5 @@
 package com.microel.speedtest.controllers.uploadtest.types;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,10 +12,12 @@ public class UploadParticle {
 
     @Override
     public String toString() {
-        try {
-            return new ObjectMapper().writeValueAsString(this);
-        } catch (JsonProcessingException e) {
-            return "{}";
-        }
+        if(b == null || e==null|| i==null) throw new RuntimeException("Не верный UploadParticle");
+        String response = "{" +
+                "\"b\":" + "" + b + "," +
+                "\"e\":" + "" + e + "," +
+                "\"i\":" + "" + i + "" +
+                "}";
+        return response;
     }
 }

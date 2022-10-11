@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class AuthenticationConnectionListener implements ApolloSubscriptionConnectionListener {
 
-    private JwtAuthenticationProvider jwtAuthenticationProvider;
+    private final JwtAuthenticationProvider jwtAuthenticationProvider;
 
     public AuthenticationConnectionListener(JwtAuthenticationProvider jwtAuthenticationProvider) {
         this.jwtAuthenticationProvider = jwtAuthenticationProvider;
@@ -19,8 +19,7 @@ public class AuthenticationConnectionListener implements ApolloSubscriptionConne
 
     private String parseToken(OperationMessage operationMessage) {
         String tokenHeader = operationMessage.getPayload().toString();
-        String token = tokenHeader.substring(1, tokenHeader.length() - 1).replace("Authorization=Bearer ", "");
-        return token;
+        return tokenHeader.substring(1, tokenHeader.length() - 1).replace("Authorization=Bearer ", "");
     }
 
     @Override

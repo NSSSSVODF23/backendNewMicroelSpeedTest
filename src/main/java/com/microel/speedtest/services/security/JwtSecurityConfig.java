@@ -26,14 +26,13 @@ public class JwtSecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeHttpRequests(
-                        authz -> authz.antMatchers("/upload/**",
-                                 "/measure/**",
-                                 "/public/**",
-                                 "/ping/**", "/graphql", "/subscriptions", "/playground")
+                        authz -> authz.antMatchers("/upload/**", "/measure/**", "/public/**",
+                                 "/ping/**", "/graphql", "/subscriptions")
                                 .permitAll()
-                                 .anyRequest().authenticated()
-                                .and()
-                                .addFilterAfter(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class))
+                )//FIXME Аутентификация graphql
+//                                .anyRequest().authenticated()
+//                                .and()
+//                                .addFilterAfter(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class))
                 .build();
     }
 }
