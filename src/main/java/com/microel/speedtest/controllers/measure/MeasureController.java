@@ -1,6 +1,7 @@
 package com.microel.speedtest.controllers.measure;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -12,6 +13,7 @@ import com.microel.speedtest.common.models.updateprovides.DeviceUpdateProvider;
 import com.microel.speedtest.repositories.entities.AcpSession;
 import com.microel.speedtest.repositories.entities.Device;
 import com.microel.speedtest.services.websocket.handler.MeasureHandler;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.microel.speedtest.common.enums.MeasureActionTypes;
@@ -53,6 +55,19 @@ public class MeasureController {
         this.sessionRepositoryDispatcher = sessionRepositoryDispatcher;
         this.beginningMeasureSink = beginningMeasureSink;
         this.updateActiveSessionSink = activeSessionsUpdateSink;
+    }
+
+    @Scheduled(fixedRate = 5000)
+    public synchronized void measureKeeper(){
+        measurements.forEach((session, measure) -> {
+            if (!session.isOpen() ||
+                    (measure.getIsStarted() &&
+                            measure.getCreated().toInstant().plusSeconds(60).isBefore(Instant.now()))) {
+                measurements.remove(session);
+                updateActiveSessionSink.tryEmitNext(new ActiveSessionsUpdateProvider(ListMutationTypes.DELETE, new ActiveSession(measure, session)));
+                beginningMeasureSink.tryEmitNext(new BeginningMeasureUpdateProvider(ListMutationTypes.DELETE, new BeginningMeasure(measure, session.getId())));
+            }
+        });
     }
 
     public MeasureActionMessage handleActionMessage(MeasureActionMessage message, WebSocketSession session) {

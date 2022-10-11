@@ -15,8 +15,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class JwtSecurityConfig {
 
-    @Autowired
-    private JwtTokenFilter jwtTokenFilter;
+    private final JwtTokenFilter jwtTokenFilter;
+
+    public JwtSecurityConfig(JwtTokenFilter jwtTokenFilter) {
+        this.jwtTokenFilter = jwtTokenFilter;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -25,11 +28,11 @@ public class JwtSecurityConfig {
                 .csrf().disable().cors().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .authorizeHttpRequests(
-                        authz -> authz.antMatchers("/upload/**", "/measure/**", "/public/**",
-                                 "/ping/**", "/graphql", "/subscriptions")
-                                .permitAll()
-                )//FIXME Аутентификация graphql
+//                .authorizeHttpRequests(
+//                        authz -> authz.antMatchers("/upload/**", "/measure/**", "/public/**",
+//                                 "/ping/**", "/graphql", "/subscriptions")
+//                                .permitAll()
+                //)//FIXME Аутентификация graphql
 //                                .anyRequest().authenticated()
 //                                .and()
 //                                .addFilterAfter(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class))

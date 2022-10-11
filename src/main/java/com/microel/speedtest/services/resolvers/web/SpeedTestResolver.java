@@ -51,7 +51,7 @@ public class SpeedTestResolver {
             is.close();
         }else{
             int b;
-            while ((b = is.read(new byte[2_048])) != -1) {
+            while ((b = is.read(new byte[10_000_000])) != -1) {
                 uploadTestController.addBytes(deviceId, b);
             }
         }
