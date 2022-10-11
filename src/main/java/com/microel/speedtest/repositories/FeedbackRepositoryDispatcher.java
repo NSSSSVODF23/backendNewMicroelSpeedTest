@@ -30,6 +30,7 @@ public class FeedbackRepositoryDispatcher {
 
     public Float avgAll(){
         List<Feedback> feedbacks = feedbackRepository.findAll();
+        if(feedbacks.size() == 0) return 0f;
         return (float) feedbacks.stream().map(Feedback::getRate).reduce(Integer::sum).orElse(0) / (float) feedbacks.size();
     }
 }

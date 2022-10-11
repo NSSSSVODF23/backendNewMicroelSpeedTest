@@ -21,6 +21,7 @@ public class ComplaintMutation implements GraphQLMutationResolver {
     private final UserRepositoryDispatcher userRepositoryDispatcher;
     private final Sinks.Many<ComplaintUpdateProvider> updateComplaintSink;
 
+
     public ComplaintMutation(ComplaintRepositoryDispatcher complaintRepositoryDispatcher, UserRepositoryDispatcher userRepositoryDispatcher, Sinks.Many<ComplaintUpdateProvider> updateComplaintSink) {
         this.complaintRepositoryDispatcher = complaintRepositoryDispatcher;
         this.userRepositoryDispatcher = userRepositoryDispatcher;
@@ -28,13 +29,9 @@ public class ComplaintMutation implements GraphQLMutationResolver {
     }
 
     public boolean doProcessedComplaint(Long id, String username) {
-        final Complaint complaint = complaintRepositoryDispatcher.getComplaint(id);
         final User user = userRepositoryDispatcher.findByUsername(username);
-        if (complaint == null) throw new CustomGraphqlException("Жалоба не найдена");
         if (user == null) throw new CustomGraphqlException("Пользователь не найден");
-        complaint.setProcessed(user);
-        complaint.setProcessedTime(Timestamp.from(Instant.now()));
-        updateComplaintSink.tryEmitNext(new ComplaintUpdateProvider(ListMutationTypes.UPDATE, complaintRepositoryDispatcher.save(complaint)));
+        updateComplaintSink.tryEmitNext(new ComplaintUpdateProvider(ListMutationTypes.UPDATE, complaintRepositoryDispatcher.doProcessed(id,user)));
         return true;
     }
 }
