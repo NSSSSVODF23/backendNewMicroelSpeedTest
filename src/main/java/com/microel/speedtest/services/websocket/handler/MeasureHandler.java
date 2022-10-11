@@ -39,7 +39,7 @@ public class MeasureHandler extends StandardSocketHandler implements WebSocketHa
     private void heartBeat(){
         sessions.keySet().forEach(session -> {
             try {
-                session.sendMessage(new PingMessage());
+                if(session.isOpen()) session.sendMessage(new PingMessage());
             } catch (IOException e) {
                 log.warn("Ping not sent {}", session.getId());
             }
