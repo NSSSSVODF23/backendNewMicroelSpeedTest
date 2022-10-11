@@ -58,15 +58,14 @@ public class MeasureController {
     }
 
     @Scheduled(fixedRate = 5000)
-    public synchronized void measureKeeper(){
-        measurements.forEach((session, measure) -> {
-            if (!session.isOpen() ||
-                    (measure.getIsStarted() &&
-                            measure.getCreated().toInstant().plusSeconds(60).isBefore(Instant.now()))) {
-                measurements.remove(session);
-                updateActiveSessionSink.tryEmitNext(new ActiveSessionsUpdateProvider(ListMutationTypes.DELETE, new ActiveSession(measure, session)));
-                beginningMeasureSink.tryEmitNext(new BeginningMeasureUpdateProvider(ListMutationTypes.DELETE, new BeginningMeasure(measure, session.getId())));
-            }
+    public synchronized void measureKeeper() {
+        List<WebSocketSession> removeSessions = measurements.entrySet().stream().filter(e -> !e.getKey().isOpen() ||
+                (e.getValue().getIsStarted() &&
+                        e.getValue().getCreated().toInstant().plusSeconds(60).isBefore(Instant.now()))).map(Map.Entry::getKey).collect(Collectors.toList());
+        removeSessions.forEach(session -> {
+            updateActiveSessionSink.tryEmitNext(new ActiveSessionsUpdateProvider(ListMutationTypes.DELETE, new ActiveSession(measurements.get(session), session)));
+            beginningMeasureSink.tryEmitNext(new BeginningMeasureUpdateProvider(ListMutationTypes.DELETE, new BeginningMeasure(measurements.get(session), session.getId())));
+            measurements.remove(session);
         });
     }
 
@@ -113,6 +112,7 @@ public class MeasureController {
                 try {
                     Measure result = message.getResult();
                     Measure ended = measurements.get(session);
+                    if(ended == null) return null;
                     ended.setIsStarted(false);
                     ended.setResult(result);
                     Measure savedMeasure = measureRepositoryDispatcher.save(ended);
@@ -144,7 +144,7 @@ public class MeasureController {
 
     public void handleConnect(WebSocketSession session) throws IOException {
         final Measure created = new Measure();
-        measurements.put(session,created);
+        measurements.put(session, created);
 
         session.sendMessage(new TextMessage(new MeasureActionMessage(MeasureActionTypes.GET_DEVICE_INFO).toString()));
         updateActiveSessionSink.tryEmitNext(new ActiveSessionsUpdateProvider(ListMutationTypes.ADD, new ActiveSession(created, session)));
@@ -157,8 +157,8 @@ public class MeasureController {
     }
 
     public List<BeginningMeasure> getBeginningMeasures() {
-        return measurements.entrySet().stream().filter(entry->entry.getValue().getIsStarted()).
-                map(entry -> new BeginningMeasure(entry.getValue(),entry.getKey().getId())).
+        return measurements.entrySet().stream().filter(entry -> entry.getValue().getIsStarted()).
+                map(entry -> new BeginningMeasure(entry.getValue(), entry.getKey().getId())).
                 collect(Collectors.toList());
     }
 
@@ -167,6 +167,6 @@ public class MeasureController {
     }
 
     public List<ActiveSession> getActiveSessions() {
-        return measurements.entrySet().stream().map(entry -> new ActiveSession(entry.getValue(),entry.getKey())).collect(Collectors.toList());
+        return measurements.entrySet().stream().map(entry -> new ActiveSession(entry.getValue(), entry.getKey())).collect(Collectors.toList());
     }
 }
