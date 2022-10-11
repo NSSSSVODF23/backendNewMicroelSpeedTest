@@ -55,6 +55,7 @@ public class SpeedTestResolver {
                 uploadTestController.addBytes(deviceId, b);
             }
         }
+        is.close();
     }
 
 
