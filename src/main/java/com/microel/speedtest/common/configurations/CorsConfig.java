@@ -4,6 +4,7 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
@@ -11,7 +12,7 @@ import org.springframework.web.filter.CorsFilter;
 public class CorsConfig {
 
 	@Bean
-	public FilterRegistrationBean corsFilter() {
+	public CorsConfigurationSource corsConfigurationSource() {
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
 		CorsConfiguration config = new CorsConfiguration();
@@ -27,8 +28,6 @@ public class CorsConfig {
 		source.registerCorsConfiguration("/**", config);
 		// source.registerCorsConfiguration("/graphql", config);
 
-		FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
-		bean.setOrder(0);
-		return bean;
+		return source;
 	}
 }
