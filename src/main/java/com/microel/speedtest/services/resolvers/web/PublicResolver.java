@@ -12,6 +12,7 @@ import com.microel.speedtest.repositories.entities.Feedback;
 import com.microel.speedtest.services.CaptchaService;
 import com.microel.speedtest.services.acpparser.Acp;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +28,7 @@ import java.time.LocalTime;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 @Controller
@@ -70,6 +72,37 @@ public class PublicResolver {
         return ResponseEntity.ok(PublicApiResponse.ok(measure));
     }
 
+    @PostMapping("old-measures")
+    public ResponseEntity<PublicApiResponse> getOldMeasures(HttpServletRequest request){
+        try {
+            CountDownLatch downLatch = new CountDownLatch(1);
+            AtomicReference<Page<Measure>> measures = new AtomicReference<>();
+            acp.takeMeasureSession(request.getRemoteAddr(), session -> {
+                if(session.getLogin() ==null || session.getLogin().equals("Без логина")){
+                    downLatch.countDown();
+                    return;
+                }
+
+                measures.set(measureRepositoryDispatcher.findByLoginLastTen(session.getLogin()));
+
+                downLatch.countDown();
+            });
+
+            downLatch.await(30, TimeUnit.SECONDS);
+
+            return ResponseEntity.ok(PublicApiResponse.ok(measures.get().map(measure -> { // От бесконечной петли
+                measure.getSession().setHouse(null);
+                measure.getSession().setMeasures(null);
+                measure.getDevice().setMeasures(null);
+                measure.getDevice().setLastSession(null);
+                return measure;
+            })));
+
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @PutMapping("complaint")
     public ResponseEntity<PublicApiResponse> createComplaint(@RequestBody CreateComplaintBody body, HttpServletRequest request) {
         if (body.isWrong()) return ResponseEntity.ok(PublicApiResponse.wrongRequest());
@@ -108,7 +141,7 @@ public class PublicResolver {
         try {
             CountDownLatch downLatch = new CountDownLatch(1);
             AtomicBoolean hasRated = new AtomicBoolean(false);
-            acp.takeMeasureSession(request.getRemoteAddr(), session -> {// FIXIT Fake ip for testing
+            acp.takeMeasureSession(request.getRemoteAddr(), session -> {
                 Timestamp startOfDay = Timestamp.valueOf(LocalDateTime.now().with(LocalTime.MIN));
                 hasRated.set(feedbackRepositoryDispatcher.isAlreadyRated(session.getSessionId(), startOfDay));
                 downLatch.countDown();

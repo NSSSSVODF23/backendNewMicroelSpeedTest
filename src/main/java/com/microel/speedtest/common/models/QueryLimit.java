@@ -12,4 +12,7 @@ import lombok.Setter;
 public class QueryLimit {
     private Integer offset=0;
     private Integer limit=1;
+    public static QueryLimit of(Integer offset, Integer limit){
+        return new QueryLimit(offset,limit);
+    }
 }

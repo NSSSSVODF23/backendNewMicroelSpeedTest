@@ -65,7 +65,7 @@ public class Observers {
      */
     @Bean
     public Sinks.Many<PerformanceInfo> updatePerformanceSink() {
-        return Sinks.many().replay().limit(1);
+        return Sinks.many().multicast().directBestEffort();
     }
 
     /**

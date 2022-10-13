@@ -19,6 +19,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import javax.persistence.criteria.Predicate;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ import java.util.List;
 public class ComplaintRepositoryDispatcher {
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    private final ZoneId timezone = ZoneId.of("Europe/Moscow");
     private final ComplaintRepository complaintRepository;
     private final ComplaintBot complaintBot;
 
@@ -54,7 +56,7 @@ public class ComplaintRepositoryDispatcher {
         SendMessage complaintNotification = new SendMessage();
         complaintNotification.setChatId("-1001844526159");
         complaintNotification.enableHtml(true);
-        complaintNotification.setText("⚡️ <u>Обращение № <b>"+savedComplaint.getComplaintId()+"</b></u> <i>"+savedComplaint.getCreated().toLocalDateTime().format(formatter)+"</i>\n" +
+        complaintNotification.setText("⚡️ <u>Обращение № <b>"+savedComplaint.getComplaintId()+"</b></u> <i>"+savedComplaint.getCreated().toLocalDateTime().atZone(timezone).format(formatter)+"</i>\n" +
                 "\n" +
                 "       Логин: <b>"+savedComplaint.getSession().getLogin()+"</b>\n" +
                 "       Адрес: <b>"+savedComplaint.getSession().getHouse().getAddress()+"</b>\n" +
@@ -92,7 +94,7 @@ public class ComplaintRepositoryDispatcher {
         SendMessage complaintNotification = new SendMessage();
         complaintNotification.setChatId("-1001844526159");
         complaintNotification.enableHtml(true);
-        complaintNotification.setText("✅ <u>Обращение № <b>"+saved.getComplaintId()+"</b></u> обработано пользователем <b>"+user.getName()+"</b> <i>"+saved.getProcessedTime().toLocalDateTime().format(formatter)+"</i>");
+        complaintNotification.setText("✅ <u>Обращение № <b>"+saved.getComplaintId()+"</b></u> обработано пользователем <b>"+user.getName()+"</b> <i>"+saved.getProcessedTime().toLocalDateTime().atZone(timezone).format(formatter)+"</i>");
         try {
             complaintBot.execute(complaintNotification);
         } catch (TelegramApiException e) {

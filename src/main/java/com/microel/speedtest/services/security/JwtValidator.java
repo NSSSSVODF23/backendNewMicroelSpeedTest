@@ -20,11 +20,11 @@ public class JwtValidator {
                     .parseClaimsJws(token);
             return true;
         } catch (ExpiredJwtException expEx) {
-            log.error("Token expired");
+//            log.error("Token expired");
         } catch (UnsupportedJwtException unsEx) {
             log.error("Unsupported jwt");
         } catch (MalformedJwtException mjEx) {
-            log.error("Malformed jwt");
+//            log.error("Malformed jwt");
         } catch (SignatureException sEx) {
             log.error("Invalid signature");
         } catch (Exception e) {

@@ -5,13 +5,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.microel.speedtest.common.enums.ListMutationTypes;
+import com.microel.speedtest.common.models.QueryLimit;
+import com.microel.speedtest.common.models.filters.MatchingFactory;
 import com.microel.speedtest.common.models.updateprovides.MeasureUpdateProvider;
 import com.microel.speedtest.common.models.chart.GroupDayCTypeIntegerPoint;
 import com.microel.speedtest.common.models.chart.GroupStringCTypeIntegerPoint;
 import com.microel.speedtest.common.models.TimeRange;
+import com.microel.speedtest.repositories.entities.AcpSession;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.convert.QueryByExamplePredicateBuilder;
 import org.springframework.stereotype.Component;
 
@@ -84,5 +88,11 @@ public class MeasureRepositoryDispatcher {
 
     public Integer countByStampBetween(TimeRange timeRange){
         return  measureRepository.countByCreatedBetween(timeRange.getStart(), timeRange.getEnd());
+    }
+
+    public Page<Measure> findByLoginLastTen(String login) {
+        Example<Measure> example = MatchingFactory.standardExample(Measure.builder().session(AcpSession.builder().login(login).build()).build());
+        Pageable pageable = MatchingFactory.paginator(QueryLimit.of(0,10), Sort.by(Sort.Direction.DESC, "created"));
+        return measureRepository.findAll(example,pageable);
     }
 }

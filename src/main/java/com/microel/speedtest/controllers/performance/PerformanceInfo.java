@@ -28,13 +28,13 @@ public class PerformanceInfo {
     private List<TimeLongPoint> totalMemoryChartData;
     private final Integer limit;
 
-    public PerformanceInfo(Integer limit){
+    public PerformanceInfo(Integer limit) {
         this.limit = limit;
         receivedChartData = Collections.synchronizedList(new FixedList<>(limit));
-        transceivedChartData = Collections.synchronizedList( new FixedList<>(limit));
-        cpuChartData = Collections.synchronizedList( new FixedList<>(limit));
-        memoryChartData = Collections.synchronizedList( new FixedList<>(limit));
-        totalMemoryChartData = Collections.synchronizedList( new FixedList<>(limit));
+        transceivedChartData = Collections.synchronizedList(new FixedList<>(limit));
+        cpuChartData = Collections.synchronizedList(new FixedList<>(limit));
+        memoryChartData = Collections.synchronizedList(new FixedList<>(limit));
+        totalMemoryChartData = Collections.synchronizedList(new FixedList<>(limit));
     }
 
     public PerformanceInfo copy() {
@@ -48,22 +48,39 @@ public class PerformanceInfo {
     }
 
     public NetworkUtil getNetworkStatisticSnapshot() {
-        final Double rx = receivedChartData.stream().map(ChartPoint::getY).reduce(0d, Double::sum)
+
+        double rx = 0d;
+        if (receivedChartData.size() > 0) rx = receivedChartData.stream().map(ChartPoint::getY).reduce(0d, Double::sum)
                 / receivedChartData.size();
-        final Double tx = transceivedChartData.stream().map(ChartPoint::getY).reduce(0d, Double::sum)
-                / transceivedChartData.size();
+
+        double tx = 0d;
+        if (transceivedChartData.size() > 0)
+            tx = transceivedChartData.stream().map(ChartPoint::getY).reduce(0d, Double::sum)
+                    / transceivedChartData.size();
+
         return NetworkUtil.builder().rx(rx).tx(tx).stamp(Timestamp.from(Instant.now())).build();
     }
 
     public CpuUtil getCpuStatisticSnapshot() {
-        final Double load = cpuChartData.stream().map(ChartPoint::getY).reduce(0d, Double::sum) / cpuChartData.size();
+
+        double load = 0d;
+        if (cpuChartData.size() > 0)
+            load = cpuChartData.stream().map(ChartPoint::getY).reduce(0d, Double::sum) / cpuChartData.size();
+
         return CpuUtil.builder().load(load).stamp(Timestamp.from(Instant.now())).build();
     }
 
     public RamUtil getMemoryStatisticSnapshot() {
-        final Long util = memoryChartData.stream().map(ChartPoint::getY).reduce(0l, Long::sum) / memoryChartData.size();
-        final Long total = totalMemoryChartData.stream().map(ChartPoint::getY).reduce(0l, Long::sum)
-                / totalMemoryChartData.size();
+
+        long util = 0L;
+        if (memoryChartData.size() > 0)
+            util = memoryChartData.stream().map(ChartPoint::getY).reduce(0L, Long::sum) / memoryChartData.size();
+
+        long total = 0L;
+        if (totalMemoryChartData.size() > 0)
+            total = totalMemoryChartData.stream().map(ChartPoint::getY).reduce(0L, Long::sum)
+                    / totalMemoryChartData.size();
+
         return RamUtil.builder().utilized(util).total(total).stamp(Timestamp.from(Instant.now())).build();
     }
 }

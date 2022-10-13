@@ -27,6 +27,7 @@ C:\Users\max95\Documents\Projects\newSpeedTest\backend\src\main\java\com\microel
 C:\Users\max95\Documents\Projects\newSpeedTest\backend\src\main\java\com\microel\speedtest\common\models\filters\ComplaintsFilter.java
 C:\Users\max95\Documents\Projects\newSpeedTest\backend\src\main\java\com\microel\speedtest\services\resolvers\subscription\MeasurementSubscriptions.java
 C:\Users\max95\Documents\Projects\newSpeedTest\backend\src\main\java\com\microel\speedtest\common\models\TimeRange.java
+C:\Users\max95\Documents\Projects\newSpeedTest\backend\src\main\java\com\microel\speedtest\controllers\tlg\ComplaintBot.java
 C:\Users\max95\Documents\Projects\newSpeedTest\backend\src\main\java\com\microel\speedtest\repositories\NetworkUtilRepositoryDispatcher.java
 C:\Users\max95\Documents\Projects\newSpeedTest\backend\src\main\java\com\microel\speedtest\repositories\interfaces\DeviceRepository.java
 C:\Users\max95\Documents\Projects\newSpeedTest\backend\src\main\java\com\microel\speedtest\services\websocket\handler\UploadResolverHandler.java
@@ -50,6 +51,7 @@ C:\Users\max95\Documents\Projects\newSpeedTest\backend\src\main\java\com\microel
 C:\Users\max95\Documents\Projects\newSpeedTest\backend\src\main\java\com\microel\speedtest\common\models\bodies\CreateFeedbackBody.java
 C:\Users\max95\Documents\Projects\newSpeedTest\backend\src\main\java\com\microel\speedtest\repositories\proxies\GroupDayCTypeIntegerPointProxy.java
 C:\Users\max95\Documents\Projects\newSpeedTest\backend\src\main\java\com\microel\speedtest\common\models\filters\MeasureFilter.java
+C:\Users\max95\Documents\Projects\newSpeedTest\backend\src\main\java\com\microel\speedtest\controllers\tlg\TelegramController.java
 C:\Users\max95\Documents\Projects\newSpeedTest\backend\src\main\java\com\microel\speedtest\services\websocket\WebSocketConfiguration.java
 C:\Users\max95\Documents\Projects\newSpeedTest\backend\src\main\java\com\microel\speedtest\services\websocket\interfaces\IConnectHandler.java
 C:\Users\max95\Documents\Projects\newSpeedTest\backend\src\main\java\com\microel\speedtest\repositories\entities\CpuUtil.java

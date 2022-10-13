@@ -24,9 +24,9 @@ public class AuthenticationConnectionListener implements ApolloSubscriptionConne
 
     @Override
     public void onConnect(SubscriptionSession session, OperationMessage operationMessage) {
-        log.info("onConnect: {}", parseToken(operationMessage));
-        if (!jwtAuthenticationProvider.validate(parseToken(operationMessage))) {
-            session.close("Invalid token");
+        String token = parseToken(operationMessage);
+        if (!jwtAuthenticationProvider.validate(token)) {
+            if(session.isOpen()) session.close("1006");
         }
     }
 

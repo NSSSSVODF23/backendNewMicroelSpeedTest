@@ -28,14 +28,12 @@ public class JwtSecurityConfig {
                 .csrf().disable().cors().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-//                .authorizeHttpRequests(
-//                        authz -> authz.antMatchers("/upload/**", "/measure/**", "/public/**",
-//                                 "/ping/**", "/graphql", "/subscriptions")
-//                                .permitAll()
-                //)//FIXME Аутентификация graphql
-//                                .anyRequest().authenticated()
-//                                .and()
-//                                .addFilterAfter(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class))
+                .authorizeHttpRequests(authz -> authz.antMatchers("/upload/**", "/measure/**", "/public/**", "/ping/**", "/subscriptions")
+                                .permitAll()
+                                .anyRequest().authenticated()
+                                .and()
+                                .addFilterAfter(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
+                )
                 .build();
     }
 }

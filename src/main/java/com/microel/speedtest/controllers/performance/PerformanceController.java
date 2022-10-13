@@ -1,41 +1,42 @@
 package com.microel.speedtest.controllers.performance;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
+import com.google.common.util.concurrent.AtomicDouble;
 import com.microel.speedtest.common.models.chart.TimeDoublePoint;
 import com.microel.speedtest.common.models.chart.TimeLongPoint;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
-import com.microel.speedtest.common.models.chart.ChartPoint;
 import com.microel.speedtest.repositories.CpuUtilRepositoryDispatcher;
 import com.microel.speedtest.repositories.NetworkUtilRepositoryDispatcher;
 import com.microel.speedtest.repositories.RamUtilRepositoryDispatcher;
 
+import org.springframework.stereotype.Service;
 import oshi.SystemInfo;
 import oshi.hardware.NetworkIF;
 import reactor.core.publisher.Sinks;
 
-@Lazy(false)
-@Component
+@Service
 public class PerformanceController {
 
     /**
      * Указывает сколько информации будет храниться, и через сколько тиков сохранять статистику
      */
     private final Integer STATISTIC_TIMER_LIMIT = 300;
-    private SystemInfo system = new SystemInfo();
-    private final List<NetworkIF> nifs;
+    private final SystemInfo system = new SystemInfo();
+    private final List<NetworkIF> nifs = Collections.synchronizedList(new ArrayList<>());
 
+    private final AtomicLong receivedBytes = new AtomicLong(0L);
+    private final AtomicLong transceivedBytes = new AtomicLong(0L);
 
-    private Long receivedBytes = 0L;
-    private Long transceivedBytes = 0L;
+    private final AtomicDouble receivedSpeed = new AtomicDouble(0d);
+    private final AtomicDouble transceivedSpeed = new AtomicDouble(0d);
 
-    private Double receivedSpeed = 0d;
-    private Double transceivedSpeed = 0d;
-
-    private PerformanceInfo info = new PerformanceInfo(STATISTIC_TIMER_LIMIT);
+    private final PerformanceInfo info = new PerformanceInfo(STATISTIC_TIMER_LIMIT);
 
     private final Sinks.Many<PerformanceInfo> updatePerformanceSink;
 
@@ -45,10 +46,10 @@ public class PerformanceController {
 
     private final RamUtilRepositoryDispatcher ramUtilRepositoryDispatcher;
 
-    private Integer statisticSaveTimer = 0;
+    private final AtomicInteger statisticSaveTimer = new AtomicInteger(0);
 
     public PerformanceController(Sinks.Many<PerformanceInfo> updatePerformanceSink, NetworkUtilRepositoryDispatcher networkUtilRepositoryDispatcher, CpuUtilRepositoryDispatcher cpuUtilRepositoryDispatcher, RamUtilRepositoryDispatcher ramUtilRepositoryDispatcher) {
-        nifs = getNetworkIfs();
+        getNetworkIfs();
         this.updatePerformanceSink = updatePerformanceSink;
         this.networkUtilRepositoryDispatcher = networkUtilRepositoryDispatcher;
         this.cpuUtilRepositoryDispatcher = cpuUtilRepositoryDispatcher;
@@ -57,40 +58,37 @@ public class PerformanceController {
 
     @Scheduled(fixedRate = 1000)
     private void start() {
-        if (isNifsEmpty())
-            return;
-
         updateNifsInfo();
 
         Long currentReceivedBytes = getRxBytes();
         Long currentTransceivedBytes = getTxBytes();
 
-        if (receivedBytes == 0L) {
-            receivedBytes = currentReceivedBytes;
+        if (receivedBytes.get() == 0L) {
+            receivedBytes.set(currentReceivedBytes);
         }
-        if (transceivedBytes == 0L) {
-            transceivedBytes = currentTransceivedBytes;
+        if (transceivedBytes.get() == 0L) {
+            transceivedBytes.set(currentTransceivedBytes);
         }
 
-        receivedSpeed = ((currentReceivedBytes - receivedBytes) * 8) / 1000000d;
-        transceivedSpeed = ((currentTransceivedBytes - transceivedBytes) * 8) / 1000000d;
+        receivedSpeed.set(((currentReceivedBytes - receivedBytes.get()) * 8) / 1000000d);
+        transceivedSpeed.set(((currentTransceivedBytes - transceivedBytes.get()) * 8) / 1000000d);
 
-        if(receivedSpeed<0) receivedSpeed = 0d;
-        if(transceivedSpeed<0) transceivedSpeed = 0d;
+        if(receivedSpeed.get()<0) receivedSpeed.set(0d);
+        if(transceivedSpeed.get()<0) transceivedSpeed.set(0d);
 
-        receivedBytes = currentReceivedBytes;
-        transceivedBytes = currentTransceivedBytes;
+        receivedBytes.set(currentReceivedBytes);
+        transceivedBytes.set(currentTransceivedBytes);
 
-        info.getReceivedChartData().add(new TimeDoublePoint(receivedSpeed));
-        info.getTransceivedChartData().add(new TimeDoublePoint(transceivedSpeed));
+        info.getReceivedChartData().add(new TimeDoublePoint(receivedSpeed.get()));
+        info.getTransceivedChartData().add(new TimeDoublePoint(transceivedSpeed.get()));
         info.getCpuChartData().add(new TimeDoublePoint(getCpuUtilization()));
         info.getMemoryChartData().add(new TimeLongPoint(getUtilizedRamCount()));
         info.getTotalMemoryChartData().add(new TimeLongPoint(getTotalRamCount()));
 
-        updatePerformanceSink.tryEmitNext(info.copy());
+        updatePerformanceSink.tryEmitNext(info);
 
-        if ((++statisticSaveTimer).equals(STATISTIC_TIMER_LIMIT)) {
-            statisticSaveTimer = 0;
+        if (statisticSaveTimer.incrementAndGet() == STATISTIC_TIMER_LIMIT) {
+            statisticSaveTimer.set(0);
             networkUtilRepositoryDispatcher.save(info.getNetworkStatisticSnapshot());
             cpuUtilRepositoryDispatcher.save(info.getCpuStatisticSnapshot());
             ramUtilRepositoryDispatcher.save(info.getMemoryStatisticSnapshot());
@@ -100,13 +98,13 @@ public class PerformanceController {
     private Long getRxBytes() {
         if (isNifsEmpty())
             return 0L;
-        return nifs.stream().map(nif -> nif.getBytesRecv()).reduce(0L, Long::sum);
+        return nifs.stream().map(NetworkIF::getBytesRecv).reduce(0L, Long::sum);
     }
 
     private Long getTxBytes() {
         if (isNifsEmpty())
             return 0L;
-        return nifs.stream().map(nif -> nif.getBytesSent()).reduce(0L, Long::sum);
+        return nifs.stream().map(NetworkIF::getBytesSent).reduce(0L, Long::sum);
     }
 
     private Double getCpuUtilization() {
@@ -123,15 +121,16 @@ public class PerformanceController {
     }
 
     private void updateNifsInfo() {
-        nifs.stream().forEach(nif -> nif.updateAttributes());
+        nifs.forEach(NetworkIF::updateAttributes);
     }
 
-    private List<NetworkIF> getNetworkIfs() {
-        return system.getHardware().getNetworkIFs();
+    private void getNetworkIfs() {
+        nifs.clear();
+        nifs.addAll(system.getHardware().getNetworkIFs());
     }
 
     private Boolean isNifsEmpty() {
-        return nifs == null || nifs.size() == 0;
+        return nifs.size() == 0;
     }
 
 }

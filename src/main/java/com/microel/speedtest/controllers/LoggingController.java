@@ -9,9 +9,9 @@ import com.microel.speedtest.repositories.entities.RoleGroup;
 import com.microel.speedtest.repositories.entities.User;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Lazy(false)
-@Component
+@Service
 public class LoggingController {
     private final SystemLogRepositoryDispatcher systemLogRepositoryDispatcher;
     private final UserRepositoryDispatcher userRepositoryDispatcher;
