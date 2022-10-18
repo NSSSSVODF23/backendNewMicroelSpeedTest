@@ -20,9 +20,18 @@ type Query {
 	getNetworkStatistic(timeRange: ITimeRange): [NetworkUtil]
 	getCpuStatistic(timeRange: ITimeRange): [CpuUtil]
 	getRamStatistic(timeRange: ITimeRange): [RamUtil]
+	getMeasuringCountsInDate(timeRange: ITimeRange): [GroupedCTypeDateIntegerPoint]
 	getMeasuringCountsInDays(timeRange: ITimeRange): [GroupedCTypeDayIntegerPoint]
+	getMeasuringCountsInHour(timeRange: ITimeRange): [GroupedCTypeHourIntegerPoint]
 	getMeasuringCountsInAddresses(timeRange: ITimeRange): [GroupedCTypeStringIntegerPoint]
 	getMeasuringCountsFromPeriod(timeRange: ITimeRange): Int
+
+	getComplaintCountsInDate(timeRange: ITimeRange): [DateIntegerPoint]
+	getComplaintCountsInDays(timeRange: ITimeRange): [DayIntegerPoint]
+	getComplaintCountsInHour(timeRange: ITimeRange): [HourIntegerPoint]
+	getComplaintCountsInAddresses(timeRange: ITimeRange): [StringIntegerPoint]
+
+	getFeedbackAvgInAddresses(timeRange: ITimeRange): [StringDoublePoint]
 
 	getComplaints(matchingObject: IComplaint, limits: IPagination, dateFilter: ITimeRange, isProcessed: Boolean): ComplaintPage
 	getTotalComplaints(filter: ComplaintsFilter): Int

@@ -5,7 +5,7 @@ import com.microel.speedtest.common.enums.MeasureConnectionTypes;
 import java.sql.Timestamp;
 
 public interface GroupDayCTypeIntegerPointProxy extends Proxy{
-    Timestamp getX();
+    Integer getX();
     Integer getY();
     MeasureConnectionTypes getG();
 }

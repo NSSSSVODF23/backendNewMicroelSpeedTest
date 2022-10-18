@@ -1,6 +1,8 @@
 package com.microel.speedtest.repositories.interfaces;
 
+import com.microel.speedtest.common.models.chart.DateIntegerPoint;
 import com.microel.speedtest.repositories.entities.Complaint;
+import com.microel.speedtest.repositories.proxies.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -29,6 +31,18 @@ public interface ComplaintRepository extends JpaRepository<Complaint, Long>, Jpa
     Integer getComplaintsCount(@Param("login") String login, @Param("address") Long address, @Param("phone") String phone, @Param("processed") Boolean processed,
                                @Param("ip") String ip, @Param("mac") String mac, @Param("start") String start,
                                @Param("end") String end);
+
+    @Query(value = "SELECT date_trunc('day', c.created) as x, count(complaint_id) as y FROM complaints as c WHERE c.created BETWEEN cast(:start AS timestamp) AND cast(:end AS timestamp) GROUP BY x", nativeQuery = true)
+    List<DateIntegerPointProxy> getCountsInDate(@Param("start") String start, @Param("end") String end);
+
+    @Query(value = "SELECT extract(dow from c.created) as x, count(complaint_id) as y FROM complaints as c WHERE c.created BETWEEN cast(:start AS timestamp) AND cast(:end AS timestamp) GROUP BY x", nativeQuery = true)
+    List<DOWIntegerPointProxy> getCountsInDay(@Param("start") String start, @Param("end") String end);
+
+    @Query(value = "SELECT date_trunc('hour', c.created) as x, count(complaint_id) as y FROM complaints as c WHERE c.created BETWEEN cast(:start AS timestamp) AND cast(:end AS timestamp) GROUP BY x", nativeQuery = true)
+    List<DateIntegerPointProxy> getCountsInHour(@Param("start") String start, @Param("end") String end);
+
+    @Query(value = "SELECT address as x, count(complaint_id) as y FROM complaints as c JOIN acp_session ON f_session_id = session_id JOIN acp_house ON f_house_id = house_id WHERE c.created BETWEEN cast(:start AS timestamp) AND cast(:end AS timestamp) GROUP BY x ORDER BY y DESC LIMIT 10", nativeQuery = true)
+    List<StringIntegerPointProxy> getCountsInAddresses(@Param("start") String start, @Param("end") String end);
 
     Page<Complaint> findAll(Specification specification, Pageable pageable);
 }

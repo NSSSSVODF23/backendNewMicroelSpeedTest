@@ -209,7 +209,39 @@ type DayIntegerPoint{
 	y: Int
 }
 
+type DateIntegerPoint{
+	x: String
+	y: Int
+}
+
+type HourIntegerPoint{
+	x: Int
+	y: Int
+}
+
+type StringIntegerPoint{
+	x: String
+	y: Int
+}
+
+type StringDoublePoint{
+	x: String
+	y: Float
+}
+
 type GroupedCTypeDayIntegerPoint{
+	x: String
+	y: Int
+	g: MeasureConnectionTypes
+}
+
+type GroupedCTypeHourIntegerPoint{
+	x: Int
+	y: Int
+	g: MeasureConnectionTypes
+}
+
+type GroupedCTypeDateIntegerPoint{
 	x: String
 	y: Int
 	g: MeasureConnectionTypes

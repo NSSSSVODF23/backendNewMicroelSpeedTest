@@ -2,6 +2,10 @@ package com.microel.speedtest.repositories;
 
 import com.microel.speedtest.common.exceptions.CustomGraphqlException;
 import com.microel.speedtest.common.models.TimeRange;
+import com.microel.speedtest.common.models.chart.DOWIntegerPoint;
+import com.microel.speedtest.common.models.chart.DateIntegerPoint;
+import com.microel.speedtest.common.models.chart.HourIntegerPoint;
+import com.microel.speedtest.common.models.chart.StringIntegerPoint;
 import com.microel.speedtest.common.models.filters.ComplaintsFilter;
 import com.microel.speedtest.controllers.tlg.ComplaintBot;
 import com.microel.speedtest.repositories.entities.Complaint;
@@ -24,6 +28,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Slf4j
 @Component
 public class ComplaintRepositoryDispatcher {
@@ -102,5 +108,21 @@ public class ComplaintRepositoryDispatcher {
             log.error(e.getLocalizedMessage());
         }
         return saved;
+    }
+
+    public List<DateIntegerPoint> getCountsInDate(TimeRange timeRange) {
+        return complaintRepository.getCountsInDate(timeRange.getStart().toString(),timeRange.getEnd().toString()).stream().map(DateIntegerPoint::fromProxy).collect(Collectors.toList());
+    }
+
+    public List<DOWIntegerPoint> getCountsInDay(TimeRange timeRange) {
+        return complaintRepository.getCountsInDay(timeRange.getStart().toString(),timeRange.getEnd().toString()).stream().map(DOWIntegerPoint::fromProxy).collect(Collectors.toList());
+    }
+
+    public List<HourIntegerPoint> getCountsInHour(TimeRange timeRange) {
+        return complaintRepository.getCountsInHour(timeRange.getStart().toString(),timeRange.getEnd().toString()).stream().map(HourIntegerPoint::fromProxy).collect(Collectors.toList());
+    }
+
+    public List<StringIntegerPoint> getCountsInAddresses(TimeRange timeRange) {
+        return complaintRepository.getCountsInAddresses(timeRange.getStart().toString(),timeRange.getEnd().toString()).stream().map(StringIntegerPoint::fromProxy).collect(Collectors.toList());
     }
 }

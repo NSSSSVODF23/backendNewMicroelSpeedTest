@@ -6,9 +6,11 @@ import java.util.stream.Collectors;
 
 import com.microel.speedtest.common.enums.ListMutationTypes;
 import com.microel.speedtest.common.models.QueryLimit;
+import com.microel.speedtest.common.models.chart.GroupDayCTypeIntegerPoint;
+import com.microel.speedtest.common.models.chart.GroupHourCTypeIntegerPoint;
 import com.microel.speedtest.common.models.filters.MatchingFactory;
 import com.microel.speedtest.common.models.updateprovides.MeasureUpdateProvider;
-import com.microel.speedtest.common.models.chart.GroupDayCTypeIntegerPoint;
+import com.microel.speedtest.common.models.chart.GroupDateCTypeIntegerPoint;
 import com.microel.speedtest.common.models.chart.GroupStringCTypeIntegerPoint;
 import com.microel.speedtest.common.models.TimeRange;
 import com.microel.speedtest.repositories.entities.AcpSession;
@@ -78,12 +80,20 @@ public class MeasureRepositoryDispatcher {
                 filter.getMac(), filter.getStart(), filter.getEnd());
     }
 
-    public List<GroupDayCTypeIntegerPoint> getCountsInDays(TimeRange timeRange) {
-        return measureRepository.getCountsInDays(timeRange.getStart().toString(),timeRange.getEnd().toString()).stream().map(proxy-> GroupDayCTypeIntegerPoint.fromProxy(proxy)).collect(Collectors.toList());
+    public List<GroupDateCTypeIntegerPoint> getCountsInDate(TimeRange timeRange) {
+        return measureRepository.getCountsInDate(timeRange.getStart().toString(),timeRange.getEnd().toString()).stream().map(GroupDateCTypeIntegerPoint::fromProxy).collect(Collectors.toList());
+    }
+
+    public List<GroupDayCTypeIntegerPoint> getCountsInDay(TimeRange timeRange) {
+        return measureRepository.getCountsInDay(timeRange.getStart().toString(),timeRange.getEnd().toString()).stream().map(GroupDayCTypeIntegerPoint::fromProxy).collect(Collectors.toList());
+    }
+
+    public List<GroupHourCTypeIntegerPoint> getCountsInHour(TimeRange timeRange) {
+        return measureRepository.getCountsInHour(timeRange.getStart().toString(),timeRange.getEnd().toString()).stream().map(GroupHourCTypeIntegerPoint::fromProxy).collect(Collectors.toList());
     }
 
     public List<GroupStringCTypeIntegerPoint> getCountsInAddresses(TimeRange timeRange){
-        return measureRepository.getCountsInAddresses(timeRange.getStart().toString(),timeRange.getEnd().toString()).stream().map(proxy->GroupStringCTypeIntegerPoint.fromProxy(proxy)).collect(Collectors.toList());
+        return measureRepository.getCountsInAddresses(timeRange.getStart().toString(),timeRange.getEnd().toString()).stream().map(GroupStringCTypeIntegerPoint::fromProxy).collect(Collectors.toList());
     }
 
     public Integer countByStampBetween(TimeRange timeRange){

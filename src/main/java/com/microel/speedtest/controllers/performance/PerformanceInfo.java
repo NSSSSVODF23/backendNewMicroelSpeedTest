@@ -1,21 +1,22 @@
 package com.microel.speedtest.controllers.performance;
 
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import com.microel.speedtest.common.models.chart.ChartPoint;
 import com.microel.speedtest.common.models.FixedList;
+import com.microel.speedtest.common.models.chart.ChartPoint;
 import com.microel.speedtest.common.models.chart.TimeDoublePoint;
 import com.microel.speedtest.common.models.chart.TimeLongPoint;
 import com.microel.speedtest.repositories.entities.CpuUtil;
 import com.microel.speedtest.repositories.entities.NetworkUtil;
 import com.microel.speedtest.repositories.entities.RamUtil;
-
 import lombok.Getter;
 import lombok.Setter;
+
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Getter
 @Setter
@@ -48,26 +49,20 @@ public class PerformanceInfo {
     }
 
     public NetworkUtil getNetworkStatisticSnapshot() {
+        return NetworkUtil.builder().rx(topAvg(receivedChartData)).tx(topAvg(transceivedChartData)).stamp(Timestamp.from(Instant.now())).build();
+    }
 
-        double rx = 0d;
-        if (receivedChartData.size() > 0) rx = receivedChartData.stream().map(ChartPoint::getY).reduce(0d, Double::sum)
-                / receivedChartData.size();
-
-        double tx = 0d;
-        if (transceivedChartData.size() > 0)
-            tx = transceivedChartData.stream().map(ChartPoint::getY).reduce(0d, Double::sum)
-                    / transceivedChartData.size();
-
-        return NetworkUtil.builder().rx(rx).tx(tx).stamp(Timestamp.from(Instant.now())).build();
+    private double topAvg(List<TimeDoublePoint> chartData) {
+        double result = 0d;
+        if (chartData.size() > 0) {
+            List<Double> prep = chartData.stream().map(ChartPoint::getY).sorted((o1, o2) -> (int) (o2 - o1)).limit(15).collect(Collectors.toList());
+            result = prep.stream().reduce(0d, Double::sum) / (double) prep.size();
+        }
+        return result;
     }
 
     public CpuUtil getCpuStatisticSnapshot() {
-
-        double load = 0d;
-        if (cpuChartData.size() > 0)
-            load = cpuChartData.stream().map(ChartPoint::getY).reduce(0d, Double::sum) / cpuChartData.size();
-
-        return CpuUtil.builder().load(load).stamp(Timestamp.from(Instant.now())).build();
+        return CpuUtil.builder().load(topAvg(cpuChartData)).stamp(Timestamp.from(Instant.now())).build();
     }
 
     public RamUtil getMemoryStatisticSnapshot() {
@@ -78,8 +73,7 @@ public class PerformanceInfo {
 
         long total = 0L;
         if (totalMemoryChartData.size() > 0)
-            total = totalMemoryChartData.stream().map(ChartPoint::getY).reduce(0L, Long::sum)
-                    / totalMemoryChartData.size();
+            total = totalMemoryChartData.stream().map(ChartPoint::getY).reduce(0L, Long::sum) / totalMemoryChartData.size();
 
         return RamUtil.builder().utilized(util).total(total).stamp(Timestamp.from(Instant.now())).build();
     }

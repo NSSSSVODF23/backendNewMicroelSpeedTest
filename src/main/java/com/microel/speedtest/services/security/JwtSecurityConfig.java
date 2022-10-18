@@ -30,9 +30,10 @@ public class JwtSecurityConfig {
         return http
                 .httpBasic().disable()
                 .csrf().disable().cors(Customizer.withDefaults())
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and().authorizeRequests().antMatchers("/upload/**", "/measure/**", "/public/**", "/ping/**", "/subscriptions").permitAll()
-                .antMatchers("/graphql").authenticated()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)//FIXME Включить проверку токена
+//                .and().authorizeRequests().antMatchers("/upload/**", "/measure/**", "/public/**", "/ping/**", "/subscriptions").permitAll()
+//                .antMatchers("/graphql").authenticated()
+                .and().authorizeRequests().antMatchers("/upload/**", "/measure/**", "/public/**", "/ping/**", "/subscriptions", "/graphql").permitAll()
                 .and().addFilterAfter(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

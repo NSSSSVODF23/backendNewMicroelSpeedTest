@@ -3,6 +3,7 @@ package com.microel.speedtest.common.models.chart;
 import java.sql.Timestamp;
 import java.time.Instant;
 
+import com.microel.speedtest.repositories.proxies.Proxy;
 import lombok.Getter;
 import lombok.Setter;
 

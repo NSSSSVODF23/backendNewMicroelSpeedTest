@@ -1,7 +1,9 @@
 package com.microel.speedtest.repositories;
 
+import com.microel.speedtest.common.models.TimeRange;
 import com.microel.speedtest.repositories.entities.Feedback;
 import com.microel.speedtest.repositories.interfaces.FeedbackRepository;
+import com.microel.speedtest.repositories.proxies.StringDoublePointProxy;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
@@ -32,5 +34,9 @@ public class FeedbackRepositoryDispatcher {
         List<Feedback> feedbacks = feedbackRepository.findAll();
         if(feedbacks.size() == 0) return 0f;
         return (float) feedbacks.stream().map(Feedback::getRate).reduce(Integer::sum).orElse(0) / (float) feedbacks.size();
+    }
+
+    public List<StringDoublePointProxy> getAvgInAddresses(TimeRange timeRange) {
+        return feedbackRepository.avgGroupByAddress(timeRange.getStart().toString(),timeRange.getEnd().toString());
     }
 }

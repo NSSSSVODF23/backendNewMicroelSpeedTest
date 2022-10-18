@@ -3,7 +3,9 @@ package com.microel.speedtest.repositories.interfaces;
 import java.sql.Timestamp;
 import java.util.List;
 
+import com.microel.speedtest.repositories.proxies.GroupDateCTypeIntegerPointProxy;
 import com.microel.speedtest.repositories.proxies.GroupDayCTypeIntegerPointProxy;
+import com.microel.speedtest.repositories.proxies.GroupHourCTypeIntegerPointProxy;
 import com.microel.speedtest.repositories.proxies.GroupStringCTypeIntegerPointProxy;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -32,7 +34,13 @@ public interface MeasureRepository extends JpaRepository<Measure, Long>, JpaSpec
                                                @Param("ip") String ip, @Param("mac") String mac, @Param("start") String start,
                                                @Param("end") String end);
     @Query(value = "SELECT date_trunc('day', created) as x, connection_type as g, count(measure_id) as y FROM measures WHERE created BETWEEN cast(:start AS timestamp) AND cast(:end AS timestamp) GROUP BY x, g", nativeQuery = true)
-    List<GroupDayCTypeIntegerPointProxy> getCountsInDays(@Param("start") String start, @Param("end") String end);
+    List<GroupDateCTypeIntegerPointProxy> getCountsInDate(@Param("start") String start, @Param("end") String end);
+
+    @Query(value = "SELECT extract(dow from created) as x, connection_type as g, count(measure_id) as y FROM measures WHERE created BETWEEN cast(:start AS timestamp) AND cast(:end AS timestamp) GROUP BY x, g", nativeQuery = true)
+    List<GroupDayCTypeIntegerPointProxy> getCountsInDay(@Param("start") String start, @Param("end") String end);
+
+    @Query(value = "SELECT date_trunc('hour', created) as x, connection_type as g, count(measure_id) as y FROM measures WHERE created BETWEEN cast(:start AS timestamp) AND cast(:end AS timestamp) GROUP BY x, g", nativeQuery = true)
+    List<GroupDateCTypeIntegerPointProxy> getCountsInHour(@Param("start") String start, @Param("end") String end);
 
     @Query(value = "SELECT address as x, connection_type as g, count(measure_id) as y FROM measures JOIN acp_session ON f_session_id = session_id JOIN acp_house ON f_house_id = house_id WHERE created BETWEEN cast(:start AS timestamp) AND cast(:end AS timestamp) GROUP BY x, g ORDER BY y DESC LIMIT 10", nativeQuery = true)
     List<GroupStringCTypeIntegerPointProxy> getCountsInAddresses(@Param("start") String start, @Param("end") String end);
