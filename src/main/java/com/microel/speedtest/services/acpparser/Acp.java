@@ -116,7 +116,7 @@ public class Acp {
                 callback.handle(empty);
                 if(!retryIp.add(ip)) return;
                 try {
-                    Thread.sleep(1000*60*5);
+                    Thread.sleep(1000*60*10);
                     generateSessionByIP(ip,empty.getSessionId());
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
