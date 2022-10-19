@@ -33,7 +33,12 @@ public class Acp {
 
     public Acp(SessionRepositoryDispatcher sessionRepositoryDispatcher) {
         this.sessionRepositoryDispatcher = sessionRepositoryDispatcher;
-        // Log in
+        logIn();
+        updateHouses();
+        updateSessions();
+    }
+
+    public void logIn(){
         try {
             Response res = Jsoup
                     .connect("http://10.50.3.27/index.php/")
@@ -47,9 +52,6 @@ public class Acp {
                 throw new RuntimeException("ACP Login failed.");
             // Save cookie
             cookies = res.cookies();
-            updateHouses();
-            updateSessions();
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -79,6 +81,7 @@ public class Acp {
             Document doc = Jsoup.connect("http://10.50.3.27/index.php/sessions/active/auth").maxBodySize(0)
                     .timeout(60000).cookies(cookies).get();
             Elements rows = doc.select(".acp_data_tables tbody tr");
+            sessions.clear();
             rows.forEach((element) -> {
                 AcpSession session = new AcpSession();
                 Elements cols = element.select("td");
@@ -136,6 +139,7 @@ public class Acp {
     private AcpSession generateSessionByIP(String ip, Long existedId) throws IOException{
         log.info("Пытаемся получить сессию для IP: {}", ip);
         AcpSession session = getSession(ip);
+        logIn();
         if (session == null) {
             updateSessions();
             log.info("Обновление сессий");
