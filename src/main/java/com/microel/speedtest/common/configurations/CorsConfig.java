@@ -21,6 +21,7 @@ public class CorsConfig {
 		config.addAllowedOrigin("http://localhost:4200");
 		config.addAllowedOrigin("http://10.1.3.150:4200");
 		config.addAllowedOrigin("http://speedtest.vdonsk.ru");
+		config.addAllowedOrigin("http://st.vdonsk.ru");
 		config.addAllowedOrigin("http://10.50.5.15");
 		config.addAllowedHeader("*");
 		config.addAllowedMethod("*");
