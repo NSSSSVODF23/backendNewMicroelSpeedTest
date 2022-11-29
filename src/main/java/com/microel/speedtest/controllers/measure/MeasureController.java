@@ -1,11 +1,14 @@
 package com.microel.speedtest.controllers.measure;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import com.microel.speedtest.common.enums.ListMutationTypes;
+import com.microel.speedtest.common.enums.MeasureConnectionTypes;
 import com.microel.speedtest.common.models.*;
 import com.microel.speedtest.common.models.updateprovides.ActiveSessionsUpdateProvider;
 import com.microel.speedtest.common.models.updateprovides.BeginningMeasureUpdateProvider;
@@ -115,6 +118,8 @@ public class MeasureController {
                     if(ended == null) return null;
                     ended.setIsStarted(false);
                     ended.setResult(result);
+                    if(ended.getConnectionType() == null) ended.setConnectionType(MeasureConnectionTypes.WIFI);
+                    if(ended.getCreated() == null) ended.setCreated(Timestamp.from(Instant.now().minus(30, ChronoUnit.SECONDS)));
                     Measure savedMeasure = measureRepositoryDispatcher.save(ended);
                     MeasureActionMessage response = new MeasureActionMessage();
                     response.setType(MeasureActionTypes.RESULT);
